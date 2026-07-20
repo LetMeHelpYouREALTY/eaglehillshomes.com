@@ -1,0 +1,39 @@
+Google Search Console — verification for eaglehillshomes.com
+============================================================
+
+Preferred property (URL prefix):
+  https://www.eaglehillshomes.com
+
+Also add (or let GSC discover) the apex and redirect:
+  https://eaglehillshomes.com  →  308 to www (see middleware.ts)
+
+------------------------------------------------------------
+Method A — HTML meta tag (preferred)
+------------------------------------------------------------
+1. In Google Search Console → Add property → URL prefix →
+   https://www.eaglehillshomes.com
+2. Choose “HTML tag” verification.
+3. Copy ONLY the content= value (not the whole <meta> tag).
+4. In Vercel → Project → Settings → Environment Variables, set:
+     GOOGLE_SITE_VERIFICATION=<token>
+   (or NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION=<token>)
+   for Production (and Preview if needed).
+5. Redeploy.
+6. Confirm homepage <head> contains:
+     <meta name="google-site-verification" content="<token}">
+7. Click Verify in Search Console.
+8. Sitemaps → submit:
+     https://www.eaglehillshomes.com/sitemap.xml
+
+------------------------------------------------------------
+Method B — HTML file upload
+------------------------------------------------------------
+1. Download googleXXXXXXXX.html from Search Console.
+2. Place it in this /public folder (same level as favicon.png).
+3. Redeploy.
+4. Confirm https://www.eaglehillshomes.com/googleXXXXXXXX.html loads.
+5. Click Verify in Search Console.
+6. Submit the sitemap URL above.
+
+Do not commit real verification tokens or private HTML files unless
+you intentionally want Method B in the repo.

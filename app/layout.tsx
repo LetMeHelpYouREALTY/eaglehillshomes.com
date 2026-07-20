@@ -1,10 +1,85 @@
 import type { Metadata } from "next";
-import Script from "next/script";
-import { SiteFooter } from "@/components/layout/site-footer";
-import { rootMetadata } from "@/lib/metadata";
+import { Fraunces, Source_Sans_3 } from "next/font/google";
+import { CalendlyBadge } from "@/components/calendly/CalendlyBadge";
+import { CalendlyScript } from "@/components/calendly/CalendlyScript";
+import { Footer } from "@/components/layouts/Footer";
+import { Navbar } from "@/components/layouts/Navbar";
+import { RealScoutScript } from "@/components/realscout/RealScoutScript";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { localBusinessSchema, websiteSchema } from "@/lib/schema";
+import {
+  GSC_SITEMAP_URL,
+  getSiteVerificationMetadata,
+  indexFollowRobots,
+} from "@/lib/seo";
+import { site } from "@/lib/site";
 import "./globals.css";
 
-export const metadata: Metadata = rootMetadata;
+const display = Fraunces({
+  subsets: ["latin"],
+  variable: "--font-display",
+  display: "swap",
+  weight: ["400", "500", "600", "700"],
+});
+
+const sans = Source_Sans_3({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+  weight: ["400", "500", "600", "700"],
+});
+
+export const metadata: Metadata = {
+  metadataBase: new URL(site.url),
+  title: {
+    default: `Eagle Hills Homes for Sale | Summerlin Realtor Services | ${site.shortName}`,
+    template: `%s | ${site.brand}`,
+  },
+  description: site.tagline,
+  applicationName: site.brand,
+  authors: [{ name: site.shortName, url: site.url }],
+  creator: site.shortName,
+  publisher: site.brokerage,
+  category: "real estate",
+  keywords: [
+    "Eagle Hills Homes",
+    "Eagle Hills Summerlin",
+    "Eagle Hills real estate",
+    "The Hills South Summerlin",
+    "Summerlin luxury homes",
+    "guard-gated Summerlin",
+    "Dr. Jan Duffy",
+    "BHHS Nevada Properties",
+  ],
+  alternates: {
+    canonical: "/",
+    types: {
+      "application/xml": GSC_SITEMAP_URL,
+    },
+  },
+  openGraph: {
+    title: `Eagle Hills Homes | ${site.shortName}`,
+    description: site.tagline,
+    url: site.url,
+    siteName: site.brand,
+    type: "website",
+    locale: "en_US",
+    images: [
+      {
+        url: "/realty/heroes/hero-homes-for-sale.jpg",
+        alt: "Eagle Hills homes in Summerlin, Las Vegas",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `Eagle Hills Homes | ${site.shortName}`,
+    description: site.tagline,
+    images: ["/realty/heroes/hero-homes-for-sale.jpg"],
+  },
+  robots: indexFollowRobots,
+  verification: getSiteVerificationMetadata(),
+};
 
 export default function RootLayout({
   children,
@@ -12,14 +87,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className="min-h-screen bg-white text-slate-900 antialiased">
-        {children}
-        <SiteFooter />
-        <Script
-          src="https://em.realscout.com/widgets/realscout-web-components.umd.js"
-          type="module"
-          strategy="lazyOnload"
+    <html lang="en" className={`${display.variable} ${sans.variable}`}>
+      <body className="min-h-dvh font-sans antialiased">
+        <RealScoutScript />
+        <CalendlyScript />
+        <JsonLd data={localBusinessSchema()} />
+        <JsonLd data={websiteSchema()} />
+        <div className="flex min-h-dvh flex-col">
+          <Navbar />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </div>
+        <CalendlyBadge
+          url={site.calendlyUrl}
+          text="Schedule Eagle Hills showing"
+          color="#3d5544"
+          textColor="#f7f5f0"
         />
       </body>
     </html>

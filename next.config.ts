@@ -6,30 +6,33 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const csp = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://em.realscout.com",
-  "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: https: blob:",
-  "font-src 'self' data:",
-  "connect-src 'self' https://em.realscout.com https://www.realscout.com",
-  "frame-src 'self' https://em.realscout.com https://www.realscout.com https://www.google.com https://maps.google.com",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://em.realscout.com https://www.realscout.com https://assets.calendly.com https://calendly.com",
+  "style-src 'self' 'unsafe-inline' https://em.realscout.com https://www.realscout.com https://assets.calendly.com",
+  "img-src 'self' data: blob: https:",
+  "font-src 'self' data: https://assets.calendly.com",
+  "connect-src 'self' https://em.realscout.com https://www.realscout.com https://calendly.com https://assets.calendly.com",
+  "frame-src 'self' https://em.realscout.com https://www.realscout.com https://calendly.com https://assets.calendly.com https://www.google.com https://maps.google.com https://*.google.com",
+  "worker-src 'self' blob:",
 ].join("; ");
 
 const nextConfig: NextConfig = {
   images: {
+    formats: ["image/avif", "image/webp"],
     remotePatterns: [
       {
         protocol: "https",
         hostname: "imagedelivery.net",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
     ],
   },
-  /** Use this package as tracing root when a parent folder has another lockfile. */
   outputFileTracingRoot: __dirname,
-  /** Smaller responses; Vercel does not rely on this header. */
   poweredByHeader: false,
   reactStrictMode: true,
-  /** Strip stray console.* in production bundles (keeps error/warn). */
   compiler: {
     removeConsole:
       process.env.NODE_ENV === "production"
