@@ -4,6 +4,10 @@ import { NextResponse } from "next/server";
 /** Must match `site.url` host in `lib/site.ts` (canonical www). */
 const CANONICAL_HOST = "www.eaglehillshomes.com";
 
+/**
+ * Force www for Search Console URL-prefix consistency.
+ * GSC HTML verification files under /public remain reachable on www after redirect.
+ */
 export function middleware(request: NextRequest) {
   const rawHost = request.headers.get("host");
   const host = rawHost?.split(":")[0]?.toLowerCase();

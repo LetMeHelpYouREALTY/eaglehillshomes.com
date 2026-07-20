@@ -32,3 +32,14 @@ npm run dev
 ## Environment
 
 See `.env.example` for RealScout agent id, Calendly URL, GBP URL, and Search Console verification.
+
+## Google Search Console
+
+1. Add URL-prefix property: `https://www.eaglehillshomes.com`
+2. Verify with **HTML tag**: set `GOOGLE_SITE_VERIFICATION` in Vercel → redeploy  
+   (or place `googleXXXXXXXX.html` in `/public` — see `public/google-site-verification.README.txt`)
+3. Confirm `<meta name="google-site-verification" …>` on the homepage
+4. **Sitemaps** → submit `https://www.eaglehillshomes.com/sitemap.xml`
+5. Apex `https://eaglehillshomes.com` 308-redirects to www (middleware)
+
+Live crawl aids already in the build: `app/robots.ts`, `app/sitemap.ts`, index/follow robots metadata, LocalBusiness + FAQ JSON-LD, www canonicals.

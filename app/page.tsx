@@ -14,7 +14,11 @@ import {
   formatUsd,
 } from "@/lib/eagle-hills-community";
 import { homeFaqs } from "@/lib/faqs";
-import { faqPageSchema, realEstateAgentSchema } from "@/lib/schema";
+import {
+  breadcrumbListSchema,
+  faqPageSchema,
+  realEstateAgentSchema,
+} from "@/lib/schema";
 import { buildPageMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
 
@@ -31,6 +35,9 @@ export default function HomePage() {
     <>
       <JsonLd data={realEstateAgentSchema(site.url)} />
       <JsonLd data={faqPageSchema(homeFaqs)} />
+      <JsonLd
+        data={breadcrumbListSchema([{ name: "Home", path: "/" }])}
+      />
 
       <RealtyHero
         headline="Realtor services for Eagle Hills — buy, sell, and tour inside the gate"

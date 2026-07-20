@@ -7,7 +7,11 @@ import { Navbar } from "@/components/layouts/Navbar";
 import { RealScoutScript } from "@/components/realscout/RealScoutScript";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { localBusinessSchema, websiteSchema } from "@/lib/schema";
-import { getSiteVerificationMetadata } from "@/lib/seo";
+import {
+  GSC_SITEMAP_URL,
+  getSiteVerificationMetadata,
+  indexFollowRobots,
+} from "@/lib/seo";
 import { site } from "@/lib/site";
 import "./globals.css";
 
@@ -49,6 +53,9 @@ export const metadata: Metadata = {
   ],
   alternates: {
     canonical: "/",
+    types: {
+      "application/xml": GSC_SITEMAP_URL,
+    },
   },
   openGraph: {
     title: `Eagle Hills Homes | ${site.shortName}`,
@@ -70,17 +77,7 @@ export const metadata: Metadata = {
     description: site.tagline,
     images: ["/realty/heroes/hero-homes-for-sale.jpg"],
   },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-      "max-video-preview": -1,
-    },
-  },
+  robots: indexFollowRobots,
   verification: getSiteVerificationMetadata(),
 };
 

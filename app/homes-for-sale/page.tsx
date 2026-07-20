@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { PageEngagement } from "@/components/engagement/PageEngagement";
 import { RealScoutSimpleSearch } from "@/components/realscout/RealScoutSimpleSearch";
 import { CtaBand } from "@/components/sections/CtaBand";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { breadcrumbListSchema } from "@/lib/schema";
 import { buildPageMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
 
@@ -14,6 +16,12 @@ export const metadata: Metadata = buildPageMetadata({
 export default function HomesForSalePage() {
   return (
     <>
+      <JsonLd
+        data={breadcrumbListSchema([
+          { name: "Home", path: "/" },
+          { name: "Homes for Sale", path: "/homes-for-sale" },
+        ])}
+      />
       <section className="border-b border-border bg-stone-50/90 px-4 py-14 sm:px-6">
         <div className="mx-auto max-w-6xl">
           <p className="text-xs font-semibold uppercase tracking-[0.28em] text-sage-700">

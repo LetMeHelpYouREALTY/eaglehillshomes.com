@@ -1,6 +1,17 @@
 import type { Metadata } from "next";
 import { site } from "@/lib/site";
 
+/** Prefer www URL prefix property in Google Search Console. */
+export const GSC_PREFERRED_PROPERTY = site.url;
+
+/** Sitemap URL to submit in GSC → Sitemaps after verification. */
+export const GSC_SITEMAP_URL = `${site.url}/sitemap.xml`;
+
+/**
+ * Google Search Console HTML-tag verification token (`content` value only).
+ * Set in Vercel: Production (and Preview if you verify preview hosts).
+ * @see https://support.google.com/webmasters/answer/9008080
+ */
 export function getGoogleSiteVerification(): string {
   return (
     process.env.GOOGLE_SITE_VERIFICATION?.trim() ||
@@ -9,11 +20,38 @@ export function getGoogleSiteVerification(): string {
   );
 }
 
+/** Optional Bing Webmaster Tools verification token. */
+export function getBingSiteVerification(): string {
+  return (
+    process.env.BING_SITE_VERIFICATION?.trim() ||
+    process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION?.trim() ||
+    ""
+  );
+}
+
 export function getSiteVerificationMetadata(): Metadata["verification"] {
   const google = getGoogleSiteVerification();
-  if (!google) return undefined;
-  return { google };
+  const bing = getBingSiteVerification();
+  if (!google && !bing) return undefined;
+
+  return {
+    ...(google ? { google } : {}),
+    ...(bing ? { other: { "msvalidate.01": bing } } : {}),
+  };
 }
+
+/** Shared index/follow robots block for GSC-friendly page metadata. */
+export const indexFollowRobots: NonNullable<Metadata["robots"]> = {
+  index: true,
+  follow: true,
+  googleBot: {
+    index: true,
+    follow: true,
+    "max-image-preview": "large",
+    "max-snippet": -1,
+    "max-video-preview": -1,
+  },
+};
 
 type PageMetaInput = {
   title: string;
@@ -23,6 +61,10 @@ type PageMetaInput = {
   ogImage?: string;
 };
 
+/**
+ * Page metadata with canonical URL aligned to the www property in Search Console.
+ * Relies on `metadataBase` in root layout so relative canonicals resolve absolutely.
+ */
 export function buildPageMetadata({
   title,
   description,
@@ -54,16 +96,6 @@ export function buildPageMetadata({
       description,
       images: [ogImage],
     },
-    robots: {
-      index: true,
-      follow: true,
-      googleBot: {
-        index: true,
-        follow: true,
-        "max-image-preview": "large",
-        "max-snippet": -1,
-        "max-video-preview": -1,
-      },
-    },
+    robots: indexFollowRobots,
   };
 }
