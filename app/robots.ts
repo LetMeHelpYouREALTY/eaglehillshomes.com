@@ -1,12 +1,18 @@
 import type { MetadataRoute } from "next";
-import { SITE_URL } from "@/lib/site-contact";
+import { site } from "@/lib/site";
 
 export default function robots(): MetadataRoute.Robots {
+  const sitemap = `${site.url}/sitemap.xml`;
+
   return {
-    rules: {
-      userAgent: "*",
-      allow: "/",
-    },
-    sitemap: `${SITE_URL}/sitemap.xml`,
+    rules: [
+      {
+        userAgent: "*",
+        allow: "/",
+        disallow: ["/api/"],
+      },
+    ],
+    sitemap,
+    host: site.url.replace(/^https?:\/\//, ""),
   };
 }

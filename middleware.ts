@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
-/** Must match `SITE_URL` host in `lib/site-contact.ts` (canonical www). */
+/** Must match `site.url` host in `lib/site.ts` (canonical www). */
 const CANONICAL_HOST = "www.eaglehillshomes.com";
 
 export function middleware(request: NextRequest) {

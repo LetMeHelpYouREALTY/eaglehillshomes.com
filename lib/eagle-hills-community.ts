@@ -7,12 +7,15 @@ export const EAGLE_HILLS_TAGLINE = "Luxury Summerlin Community";
 /** Custom homes built in the neighborhood (community fact). */
 export const EAGLE_HILLS_HOME_COUNT = 153;
 
-/** Point-in-time active listing snapshot — refresh when marketing this block. */
+/**
+ * Point-in-time active listing snapshot — refresh when marketing this block.
+ * Sourced from public MLS marketing pages (mid-July 2026); verify live on RealScout.
+ */
 export const EAGLE_HILLS_LISTING_STATS = {
-  totalListings: 3,
-  averagePrice: 3_750_000,
+  totalListings: 9,
+  averagePrice: 3_450_000,
   highestPrice: 4_250_000,
-  lowestPrice: 3_250_000,
+  lowestPrice: 2_800_000,
 } as const;
 
 export const EAGLE_HILLS_COMMUNITY_DESCRIPTION =
