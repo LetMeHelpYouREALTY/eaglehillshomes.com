@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export type PropertyNeighborhoodProps = {
   title: string;
   body: string;
@@ -26,6 +28,14 @@ export function PropertyNeighborhood({
           src={mapEmbedSrc}
         />
       </div>
+      <p className="mt-4">
+        <Link
+          href="/amenities"
+          className="text-sm font-medium text-[#0e64c8] hover:underline"
+        >
+          Explore the full nearby amenities map and local guide
+        </Link>
+      </p>
     </section>
   );
 }

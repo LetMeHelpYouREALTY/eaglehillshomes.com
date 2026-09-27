@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { PropertyFloorPlan } from "@/components/property/PropertyFloorPlan";
 import { PropertyGallery } from "@/components/property/PropertyGallery";
 import { PropertyHero } from "@/components/property/PropertyHero";
+import { NearbyAmenitiesSection } from "@/components/amenities/nearby-amenities-section";
 import { PropertyNeighborhood } from "@/components/property/PropertyNeighborhood";
 import { PropertyPhotosGrid } from "@/components/property/PropertyPhotosGrid";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -166,6 +168,13 @@ export default async function HomePage() {
           <h2 id="listings-heading" className="text-2xl font-semibold text-slate-900">
             More Eagle Hills homes for sale
           </h2>
+          <p className="mt-2 text-slate-600">
+            Comparing locations? See{" "}
+            <Link className="font-medium text-[#0e64c8] hover:underline" href="/amenities">
+              nearby amenities in Eagle Hills
+            </Link>{" "}
+            for dining, golf, and everyday errands.
+          </p>
           <div className="mt-6 w-full">
             <div dangerouslySetInnerHTML={{ __html: REALSCOUT_OFFICE_LISTINGS_HTML }} />
           </div>
@@ -193,6 +202,8 @@ export default async function HomePage() {
           mapEmbedSrc={listing.neighborhood.mapEmbedSrc}
           mapTitle="Eagle Hills and Summerlin area map"
         />
+
+        <NearbyAmenitiesSection compact />
 
         <section className="mt-14" id="about-eagle-hills" aria-labelledby="geo-heading">
           <h2 id="geo-heading" className="text-2xl font-semibold text-slate-900">
