@@ -66,8 +66,8 @@ export default function AmenitiesPage() {
             Interactive amenity map
           </h2>
           <p className="mt-2 text-slate-600">
-            Filter by category to see places Google Maps returns near the Eagle Hills center
-            pin—plus a curated Summerlin list when the API key is not configured.
+            Filter by category to explore dining, golf, parks, grocery, healthcare, and more near
+            the Eagle Hills map center, with featured Summerlin places listed below.
           </p>
           <AmenityMap className="mt-6" />
         </section>

@@ -3,7 +3,7 @@ import type { AmenityCategoryId } from "@/lib/amenities-curated";
 export type { AmenityCategoryId };
 
 /** Default search radius for Place.searchNearby (meters). */
-export const AMENITY_SEARCH_RADIUS_METERS = 8_000;
+export const AMENITY_SEARCH_RADIUS_METERS = 5_000;
 
 /**
  * Category chips for the interactive map.

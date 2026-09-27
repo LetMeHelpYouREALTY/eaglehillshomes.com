@@ -4,14 +4,12 @@ import { useCallback, useEffect, useId, useRef, useState } from "react";
 import {
   AMENITY_CATEGORY_LABELS,
   AMENITY_CATEGORY_ORDER,
-  AMENITY_SEARCH_RADIUS_METERS,
   getCategoryPlaceTypes,
   getGoogleMapsApiKey,
   getGoogleMapsMapId,
   type AmenityCategoryId,
 } from "@/lib/amenity-map-config";
 import {
-  CURATED_AMENITIES,
   getCuratedByCategory,
   mapsPlaceDirectionsUrl,
   type CuratedPlace,
@@ -21,72 +19,12 @@ import {
   EAGLE_HILLS_CENTER,
   EAGLE_HILLS_COMMUNITY_NAME,
 } from "@/lib/eagle-hills-geo";
-
-type MapPlaceResult = {
-  id: string;
-  name: string;
-  address: string;
-  rating?: number;
-  lat: number;
-  lng: number;
-  directionsUrl: string;
-};
+import { loadGoogleMaps, mapsAuthFailed } from "@/lib/load-google-maps";
+import { searchCategory, type NearbyPlaceResult } from "@/lib/places-search";
 
 const MAP_MIN_HEIGHT_PX = 400;
 
-function buildDirectionsUrl(lat: number, lng: number, label?: string): string {
-  if (label) {
-    return (
-      "https://www.google.com/maps/dir/?api=1&destination=" +
-      encodeURIComponent(label)
-    );
-  }
-  return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
-}
-
-function isGoogleMapsReady(): boolean {
-  return Boolean(window.google?.maps);
-}
-
-async function loadGoogleMapsScript(apiKey: string): Promise<void> {
-  if (typeof window === "undefined") return;
-  if (isGoogleMapsReady()) return;
-
-  const existing = document.querySelector<HTMLScriptElement>(
-    "script[data-eagle-hills-maps]",
-  );
-  if (existing) {
-    await new Promise<void>((resolve, reject) => {
-      if (isGoogleMapsReady()) {
-        resolve();
-        return;
-      }
-      existing.addEventListener("load", () => resolve());
-      existing.addEventListener("error", () => reject(new Error("Maps script error")));
-    });
-    return;
-  }
-
-  await new Promise<void>((resolve, reject) => {
-    const script = document.createElement("script");
-    script.dataset.eagleHillsMaps = "true";
-    script.async = true;
-    script.src =
-      `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(apiKey)}` +
-      "&v=weekly&loading=async&libraries=places";
-    script.onload = () => {
-      const waitForImport = () => {
-        if (isGoogleMapsReady()) resolve();
-        else window.setTimeout(waitForImport, 40);
-      };
-      waitForImport();
-    };
-    script.onerror = () => reject(new Error("Failed to load Google Maps"));
-    document.head.appendChild(script);
-  });
-}
-
-function curatedToMapResults(category: AmenityCategoryId): MapPlaceResult[] {
+function curatedToMapResults(category: AmenityCategoryId): NearbyPlaceResult[] {
   return getCuratedByCategory(category).map((place, index) => ({
     id: `curated-${category}-${index}`,
     name: place.name,
@@ -97,8 +35,48 @@ function curatedToMapResults(category: AmenityCategoryId): MapPlaceResult[] {
   }));
 }
 
+function buildInfoWindowContent(
+  place: NearbyPlaceResult,
+): HTMLElement {
+  const wrap = document.createElement("div");
+  wrap.style.maxWidth = "240px";
+
+  const title = document.createElement("strong");
+  title.textContent = place.name;
+  wrap.appendChild(title);
+
+  if (place.address) {
+    wrap.appendChild(document.createElement("br"));
+    const addr = document.createElement("span");
+    addr.textContent = place.address;
+    wrap.appendChild(addr);
+  }
+
+  wrap.appendChild(document.createElement("br"));
+  const link = document.createElement("a");
+  link.href = place.directionsUrl;
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  link.textContent = "Directions";
+  wrap.appendChild(link);
+
+  return wrap;
+}
+
+function buildCommunityInfoWindow(): HTMLElement {
+  const wrap = document.createElement("div");
+  wrap.style.maxWidth = "220px";
+  const title = document.createElement("strong");
+  title.textContent = EAGLE_HILLS_COMMUNITY_NAME;
+  wrap.appendChild(title);
+  wrap.appendChild(document.createElement("br"));
+  const line = document.createElement("span");
+  line.textContent = "Guard-gated Summerlin community";
+  wrap.appendChild(line);
+  return wrap;
+}
+
 type AmenityMapProps = {
-  /** When true, only show a subset of categories in the chip row (homepage). */
   compactCategories?: boolean;
   className?: string;
 };
@@ -112,17 +90,41 @@ export function AmenityMap({ compactCategories = false, className }: AmenityMapP
   const markersRef = useRef<google.maps.Marker[]>([]);
   const communityMarkerRef = useRef<google.maps.Marker | null>(null);
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
+  const mapInitializedRef = useRef(false);
+
   const [isInView, setIsInView] = useState(false);
   const [activeCategory, setActiveCategory] =
     useState<AmenityCategoryId>("golf");
+  const activeCategoryRef = useRef<AmenityCategoryId>(activeCategory);
+  useEffect(() => {
+    activeCategoryRef.current = activeCategory;
+  }, [activeCategory]);
   const [mapStatus, setMapStatus] = useState<"idle" | "loading" | "ready" | "fallback">(
-    apiKey ? "idle" : "fallback",
+    apiKey && !mapsAuthFailed ? "idle" : "fallback",
   );
-  const [places, setPlaces] = useState<MapPlaceResult[]>(() =>
+  const [places, setPlaces] = useState<NearbyPlaceResult[]>(() =>
     curatedToMapResults("golf"),
   );
-  const [loadError, setLoadError] = useState<string | null>(null);
   const liveRegionId = useId();
+
+  const enterFallback = useCallback(() => {
+    clearMarkersInternal();
+    mapInstanceRef.current = null;
+    mapInitializedRef.current = false;
+    setMapStatus("fallback");
+    setPlaces(curatedToMapResults(activeCategory));
+  }, [activeCategory]);
+
+  function clearMarkersInternal() {
+    markersRef.current.forEach((m) => m.setMap(null));
+    markersRef.current = [];
+    communityMarkerRef.current?.setMap(null);
+    communityMarkerRef.current = null;
+  }
+
+  const clearMarkers = useCallback(() => {
+    clearMarkersInternal();
+  }, []);
 
   const visibleCategories = compactCategories
     ? AMENITY_CATEGORY_ORDER.filter((c) =>
@@ -147,15 +149,16 @@ export function AmenityMap({ compactCategories = false, className }: AmenityMapP
     return () => observer.disconnect();
   }, []);
 
-  const clearMarkers = useCallback(() => {
-    markersRef.current.forEach((m) => m.setMap(null));
-    markersRef.current = [];
-    communityMarkerRef.current?.setMap(null);
-    communityMarkerRef.current = null;
-  }, []);
+  useEffect(() => {
+    const onAuthFailure = () => {
+      enterFallback();
+    };
+    window.addEventListener("gmaps:auth-failure", onAuthFailure);
+    return () => window.removeEventListener("gmaps:auth-failure", onAuthFailure);
+  }, [enterFallback]);
 
   const renderMarkers = useCallback(
-    (map: google.maps.Map, results: MapPlaceResult[]) => {
+    (map: google.maps.Map, results: NearbyPlaceResult[]) => {
       clearMarkers();
       if (!infoWindowRef.current) {
         infoWindowRef.current = new google.maps.InfoWindow();
@@ -175,9 +178,7 @@ export function AmenityMap({ compactCategories = false, className }: AmenityMapP
       });
       communityMarkerRef.current = communityMarker;
       communityMarker.addListener("click", () => {
-        infoWindow.setContent(
-          `<div style="max-width:220px"><strong>${EAGLE_HILLS_COMMUNITY_NAME}</strong><br/>Guard-gated Summerlin community</div>`,
-        );
+        infoWindow.setContent(buildCommunityInfoWindow());
         infoWindow.open({ map, anchor: communityMarker });
       });
 
@@ -188,13 +189,7 @@ export function AmenityMap({ compactCategories = false, className }: AmenityMapP
           title: place.name,
         });
         marker.addListener("click", () => {
-          const ratingLine =
-            place.rating !== undefined
-              ? `<br/>Rating: ${place.rating.toFixed(1)}`
-              : "";
-          infoWindow.setContent(
-            `<div style="max-width:240px"><strong>${place.name}</strong>${ratingLine}<br/>${place.address}<br/><a href="${place.directionsUrl}" target="_blank" rel="noopener noreferrer">Directions</a></div>`,
-          );
+          infoWindow.setContent(buildInfoWindowContent(place));
           infoWindow.open({ map, anchor: marker });
         });
         markersRef.current.push(marker);
@@ -207,59 +202,13 @@ export function AmenityMap({ compactCategories = false, className }: AmenityMapP
     async (map: google.maps.Map, category: AmenityCategoryId) => {
       const types = getCategoryPlaceTypes(category);
       try {
-        const placesLib = (await google.maps.importLibrary(
-          "places",
-        )) as google.maps.PlacesLibrary;
-        const Place = placesLib.Place;
-        if (!Place?.searchNearby) {
-          throw new Error("searchNearby unavailable");
-        }
-
-        const { places: nearby } = await Place.searchNearby({
-          fields: [
-            "displayName",
-            "formattedAddress",
-            "location",
-            "rating",
-            "googleMapsURI",
-          ],
-          includedPrimaryTypes: types,
-          locationRestriction: {
-            center: EAGLE_HILLS_CENTER,
-            radius: AMENITY_SEARCH_RADIUS_METERS,
-          },
-          maxResultCount: 15,
-        });
-
-        const mapped: MapPlaceResult[] = [];
-        nearby.forEach((p, index) => {
-          const loc = p.location;
-          if (!loc) return;
-          const name = p.displayName ?? "Place";
-          const address = p.formattedAddress ?? "";
-          const lat = loc.lat();
-          const lng = loc.lng();
-          const directionsUrl =
-            p.googleMapsURI ??
-            buildDirectionsUrl(lat, lng, address ? `${name}, ${address}` : name);
-          mapped.push({
-            id: `api-${category}-${index}`,
-            name,
-            address,
-            rating: p.rating ?? undefined,
-            lat,
-            lng,
-            directionsUrl,
-          });
-        });
-
+        const mapped = await searchCategory(category, types);
         if (mapped.length === 0) {
           const curated = curatedToMapResults(category);
           setPlaces(curated);
           renderMarkers(map, curated);
           return;
         }
-
         setPlaces(mapped);
         renderMarkers(map, mapped);
       } catch {
@@ -271,20 +220,25 @@ export function AmenityMap({ compactCategories = false, className }: AmenityMapP
     [renderMarkers],
   );
 
-  const mapInitializedRef = useRef(false);
-
   useEffect(() => {
     if (!isInView || !apiKey || mapInitializedRef.current) return;
+    if (mapsAuthFailed) {
+      setMapStatus("fallback");
+      return;
+    }
 
     let cancelled = false;
     mapInitializedRef.current = true;
 
     async function init() {
       setMapStatus("loading");
-      setLoadError(null);
       try {
-        await loadGoogleMapsScript(apiKey!);
-        if (cancelled || !mapDivRef.current) return;
+        await loadGoogleMaps(apiKey!);
+        if (cancelled || mapsAuthFailed) {
+          enterFallback();
+          return;
+        }
+        if (!mapDivRef.current) return;
 
         const mapOptions: google.maps.MapOptions = {
           center: EAGLE_HILLS_CENTER,
@@ -300,12 +254,10 @@ export function AmenityMap({ compactCategories = false, className }: AmenityMapP
         const map = new google.maps.Map(mapDivRef.current, mapOptions);
         mapInstanceRef.current = map;
         setMapStatus("ready");
-        await fetchNearby(map, activeCategory);
+        await fetchNearby(map, activeCategoryRef.current);
       } catch {
         if (!cancelled) {
-          setMapStatus("fallback");
-          setLoadError("Interactive map unavailable");
-          setPlaces(curatedToMapResults(activeCategory));
+          enterFallback();
         }
       }
     }
@@ -314,7 +266,7 @@ export function AmenityMap({ compactCategories = false, className }: AmenityMapP
     return () => {
       cancelled = true;
     };
-  }, [isInView, apiKey, mapId, activeCategory, fetchNearby]);
+  }, [isInView, apiKey, mapId, fetchNearby, enterFallback]);
 
   useEffect(() => {
     const map = mapInstanceRef.current;
@@ -333,7 +285,7 @@ export function AmenityMap({ compactCategories = false, className }: AmenityMapP
     }
   };
 
-  const showFallback = mapStatus === "fallback" || !apiKey;
+  const showFallback = mapStatus === "fallback" || !apiKey || mapsAuthFailed;
   const fallbackEmbed = communityMapsEmbedUrl(14);
 
   return (
@@ -400,9 +352,9 @@ export function AmenityMap({ compactCategories = false, className }: AmenityMapP
         {places.length} places listed.
       </p>
 
-      {loadError ? (
-        <p className="mt-2 text-sm text-slate-600">{loadError} — curated list below.</p>
-      ) : null}
+      <h3 className="mt-6 text-lg font-semibold text-slate-900">
+        Featured places near {EAGLE_HILLS_COMMUNITY_NAME}
+      </h3>
 
       <CuratedPlaceList
         category={activeCategory}
@@ -419,7 +371,7 @@ function CuratedPlaceList({
   curatedFallback,
 }: {
   category: AmenityCategoryId;
-  places: MapPlaceResult[];
+  places: NearbyPlaceResult[];
   curatedFallback: CuratedPlace[];
 }) {
   const list =
@@ -428,35 +380,35 @@ function CuratedPlaceList({
           name: p.name,
           address: p.address,
           directionsUrl: p.directionsUrl,
-          rating: p.rating,
         }))
       : curatedFallback.map((p) => ({
           name: p.name,
           address: p.address,
           directionsUrl: mapsPlaceDirectionsUrl(p),
-          rating: undefined as number | undefined,
         }));
 
   if (list.length === 0) {
     return (
       <p className="mt-4 text-sm text-slate-600">
-        No curated listings for {AMENITY_CATEGORY_LABELS[category]} yet—use the map
-        search when your API key is configured.
+        No featured listings for {AMENITY_CATEGORY_LABELS[category]} yet—try another
+        category or use Directions on the map.
       </p>
     );
   }
 
   return (
-    <ul className="mt-4 space-y-3" aria-label={`${AMENITY_CATEGORY_LABELS[category]} near Eagle Hills`}>
+    <ul
+      className="mt-4 space-y-3"
+      aria-label={`${AMENITY_CATEGORY_LABELS[category]} near Eagle Hills`}
+    >
       {list.map((item) => (
         <li
           key={`${item.name}-${item.address}`}
           className="rounded-lg border border-slate-200 bg-white p-4 text-sm shadow-sm"
         >
           <p className="font-semibold text-slate-900">{item.name}</p>
-          <p className="mt-1 text-slate-600">{item.address}</p>
-          {item.rating !== undefined ? (
-            <p className="mt-1 text-slate-500">Google rating: {item.rating.toFixed(1)}</p>
+          {item.address ? (
+            <p className="mt-1 text-slate-600">{item.address}</p>
           ) : null}
           <a
             className="mt-2 inline-block font-medium text-[#0e64c8] hover:underline"
@@ -470,9 +422,4 @@ function CuratedPlaceList({
       ))}
     </ul>
   );
-}
-
-/** Static list of all curated places (server-friendly export for tests). */
-export function getAllCuratedForStaticHtml(): CuratedPlace[] {
-  return CURATED_AMENITIES;
 }
