@@ -42,7 +42,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const ogImageUrl = absolutePropertyImageUrl(media.heroImage.src, SITE_URL);
 
   const title = `${FEATURED_PROPERTY.headline} | ${SITE_NAME}`;
-  const description = `Featured Summerlin listing in ${FEATURED_PROPERTY.addressLine}. ${FEATURED_PROPERTY.priceDisplay} · ${FEATURED_PROPERTY.beds} bed · ${FEATURED_PROPERTY.baths} bath · ${FEATURED_PROPERTY.livingSqft.toLocaleString("en-US")} sq ft. Tour and details with ${AGENT_NAME} (${BROKERAGE}).`;
+  const description = `Featured Eagle Hills area listing in The Hills South, Summerlin: ${FEATURED_PROPERTY.priceDisplay}, ${FEATURED_PROPERTY.beds} beds, ${FEATURED_PROPERTY.baths} baths, ${FEATURED_PROPERTY.livingSqft.toLocaleString("en-US")} sq ft. Tours with ${AGENT_NAME}.`;
 
   return {
     title,
