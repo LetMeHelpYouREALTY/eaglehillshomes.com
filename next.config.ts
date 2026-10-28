@@ -6,12 +6,12 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const csp = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://em.realscout.com",
+  "script-src https://widgetbe.com https://*.widgetbe.com 'self' 'unsafe-inline' 'unsafe-eval' https://em.realscout.com",
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: https: blob:",
+  "img-src https://widgetbe.com https://*.widgetbe.com 'self' data: https: blob:",
   "font-src 'self' data:",
-  "connect-src 'self' https://em.realscout.com https://www.realscout.com",
-  "frame-src 'self' https://em.realscout.com https://www.realscout.com https://www.google.com https://maps.google.com",
+  "connect-src https://widgetbe.com https://*.widgetbe.com 'self' https://em.realscout.com https://www.realscout.com",
+  "frame-src https://widgetbe.com https://*.widgetbe.com 'self' https://em.realscout.com https://www.realscout.com https://www.google.com https://maps.google.com",
 ].join("; ");
 
 const nextConfig: NextConfig = {
