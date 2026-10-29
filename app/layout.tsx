@@ -3,6 +3,7 @@ import Script from "next/script";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { rootMetadata } from "@/lib/metadata";
 import "./globals.css";
+import WidgetTracker from './widget-tracker'
 
 export const metadata: Metadata = rootMetadata;
 
@@ -21,6 +22,7 @@ export default function RootLayout({
           type="module"
           strategy="lazyOnload"
         />
+        <WidgetTracker />
       </body>
     </html>
   );
