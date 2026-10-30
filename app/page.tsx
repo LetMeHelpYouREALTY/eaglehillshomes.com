@@ -18,7 +18,6 @@ import {
 import { FEATURED_PROPERTY } from "@/lib/property-template";
 import {
   AGENT_NAME,
-  BROKERAGE,
   OFFICE_ADDRESS_SINGLE_LINE,
   SERVICE_AREA_PRIMARY,
   SITE_NAME,
@@ -172,7 +171,7 @@ export default async function HomePage() {
           <p className="mt-4 text-xs text-slate-500">
             Listing information comes from participating brokers and may not show every home on the
             market. Details are not guaranteed—confirm square footage, taxes, HOA fees, and status
-            with your agent. Equal Housing Opportunity. Brokerage: {BROKERAGE}.
+            with your agent. Equal Housing Opportunity.
           </p>
         </section>
 
