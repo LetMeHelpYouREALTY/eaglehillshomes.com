@@ -20,7 +20,7 @@ export const rootMetadata: Metadata = {
     template: rootTitleTemplate,
   },
   description:
-    "Eagle Hills Real Estate in Summerlin, Las Vegas: guard-gated custom homes in The Hills South village. Search homes for sale and get representation by Dr. Jan Duffy, Berkshire Hathaway HomeServices Nevada Properties.",
+    "Eagle Hills Real Estate in Summerlin, Las Vegas: guard-gated custom homes in The Hills South village. Search homes for sale and get representation by Dr. Jan Duffy.",
   keywords: [
     "Eagle Hills Homes",
     "Eagle Hills real estate",

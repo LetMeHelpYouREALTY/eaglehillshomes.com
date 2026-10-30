@@ -18,7 +18,7 @@ const faqPairs: ReadonlyArray<{ question: string; answer: string }> = [
   {
     question: "What is Eagle Hills Homes?",
     answer:
-      `Eagle Hills Homes is this site’s focus on Eagle Hills in Summerlin, Las Vegas—a guard-gated enclave of about ${EAGLE_HILLS_HOME_COUNT} custom homes in The Hills South village—plus a live home search on this site and representation by ${AGENT_NAME} at ${BROKERAGE}.`,
+      `Eagle Hills Homes is this site’s focus on Eagle Hills in Summerlin, Las Vegas—a guard-gated enclave of about ${EAGLE_HILLS_HOME_COUNT} custom homes in The Hills South village—plus a live home search on this site and representation by ${AGENT_NAME}.`,
   },
   {
     question: "Where is Eagle Hills in the Las Vegas area?",
@@ -42,7 +42,7 @@ const faqPairs: ReadonlyArray<{ question: string; answer: string }> = [
   {
     question: "Who represents buyers and sellers for Eagle Hills listings?",
     answer:
-      `${AGENT_NAME} (${LICENSE_ID}) with ${BROKERAGE} provides buyer and seller representation for Summerlin and Las Vegas Valley homes, including Eagle Hills. Reach out by phone or email for showings, pricing strategy, and contract guidance.`,
+      `${AGENT_NAME} provides buyer and seller representation for Summerlin and Las Vegas Valley homes, including Eagle Hills. Reach out by phone or email for showings, pricing strategy, and contract guidance.`,
   },
   {
     question: "Are listing details guaranteed?",

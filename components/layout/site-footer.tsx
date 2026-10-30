@@ -28,8 +28,6 @@ export function SiteFooter() {
             </p>
             <p className="mt-2 text-lg font-semibold text-slate-900">{SITE_NAME}</p>
             <p className="mt-1 text-slate-700">{AGENT_NAME}</p>
-            <p className="text-sm text-slate-600">{BROKERAGE}</p>
-            <p className="mt-2 text-sm text-slate-600">License {LICENSE_ID}</p>
             <address className="mt-4 not-italic text-slate-700">
               {OFFICE_ADDRESS_LINES.map((line) => (
                 <span key={line} className="block">
@@ -86,8 +84,9 @@ export function SiteFooter() {
           </div>
         </div>
         <p className="mt-10 text-xs text-slate-500">
-          {SITE_NAME} is operated by {AGENT_NAME} ({LICENSE_ID}) with {BROKERAGE}. Not intended as
-          legal or tax advice; consult a qualified professional for those matters.
+          {SITE_NAME} is operated by {AGENT_NAME}. {BROKERAGE} since September 2008 · License{" "}
+          {LICENSE_ID}. Not intended as legal or tax advice; consult a qualified professional for
+          those matters.
         </p>
       </div>
     </footer>
