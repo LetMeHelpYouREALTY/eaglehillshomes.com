@@ -3,6 +3,8 @@ import Script from "next/script";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { rootMetadata } from "@/lib/metadata";
 import "./globals.css";
+import { Analytics as VercelAnalytics } from "@vercel/analytics/next";
+import { SpeedInsights as VercelSpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata: Metadata = rootMetadata;
 
@@ -21,6 +23,8 @@ export default function RootLayout({
           type="module"
           strategy="lazyOnload"
         />
+        <VercelAnalytics />
+        <VercelSpeedInsights />
       </body>
     </html>
   );
