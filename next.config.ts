@@ -6,11 +6,11 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const csp = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://em.realscout.com",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://em.realscout.com https://maps.googleapis.com https://maps.gstatic.com",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: https: blob:",
   "font-src 'self' data:",
-  "connect-src 'self' https://em.realscout.com https://www.realscout.com",
+  "connect-src 'self' https://em.realscout.com https://www.realscout.com https://maps.googleapis.com https://places.googleapis.com",
   "frame-src 'self' https://em.realscout.com https://www.realscout.com https://www.google.com https://maps.google.com",
 ].join("; ");
 

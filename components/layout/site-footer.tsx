@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   AGENT_NAME,
   BROKERAGE,
@@ -21,7 +22,7 @@ export function SiteFooter() {
   return (
     <footer className="border-t border-slate-200 bg-slate-50">
       <div className="mx-auto max-w-5xl px-6 py-12">
-        <div className="grid gap-10 md:grid-cols-2">
+        <div className="grid gap-10 md:grid-cols-3">
           <div>
             <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">
               Contact
@@ -37,6 +38,28 @@ export function SiteFooter() {
                 </span>
               ))}
             </address>
+          </div>
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+              Explore
+            </p>
+            <ul className="mt-3 space-y-2 text-sm">
+              <li>
+                <Link className="text-[#0e64c8] hover:underline" href="/amenities">
+                  Nearby amenities map
+                </Link>
+              </li>
+              <li>
+                <Link className="text-[#0e64c8] hover:underline" href="/#listings">
+                  Home search
+                </Link>
+              </li>
+              <li>
+                <Link className="text-[#0e64c8] hover:underline" href="/#faq">
+                  FAQ
+                </Link>
+              </li>
+            </ul>
           </div>
           <div className="flex flex-col gap-3">
             <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">
