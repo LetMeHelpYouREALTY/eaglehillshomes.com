@@ -3,6 +3,7 @@ import Script from "next/script";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { rootMetadata } from "@/lib/metadata";
 import "./globals.css";
+import RealtorAnalytics from "../components/analytics/RealtorAnalytics";
 
 export const metadata: Metadata = rootMetadata;
 
@@ -21,6 +22,7 @@ export default function RootLayout({
           type="module"
           strategy="lazyOnload"
         />
+        <RealtorAnalytics siteName="eaglehillshomes.com" />
       </body>
     </html>
   );
